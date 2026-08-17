@@ -27,8 +27,4 @@ while (guess != secretNumber) {
 }
 
 // End of the game
-if (attempts > 1) {
-    alert('Congratulations! You guessed the secret number in ' + attempts + ' attempts!');
-} else {
-    alert('Congratulations! You guessed the secret number in a single attempt!');
-}
+alert(`Congratulations! You guessed the secret number in ${attempts === 1 ? 'a single attempt' : attempts + ' attempts'}!`);
