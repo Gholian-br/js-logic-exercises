@@ -1,41 +1,93 @@
-// Secret Number Game implementation focusing on DOM manipulation, input validation, and game state management in JavaScript.
-
+// State variables
+let drawnNumbersList = [];
+let maxNumber = 10;
 let secretNumber = generateRandomNumber();
 let attempts = 1;
 
-console.log(secretNumber);
-
-// Dynamically updates text content inside a specified HTML tag
-function textOnScreen(tag, text) {
-  let field = document.querySelector(tag);
-  field.innerHTML = text;
+/**
+ * Displays text on the screen in a specified HTML tag
+ * and reads it aloud using text-to-speech.
+ */
+function displayTextOnScreen(tag, text) {
+    let field = document.querySelector(tag);
+    field.innerHTML = text;
+    
+    // Configured for US English voice output
+    responsiveVoice.speak(text, 'US English Female', { rate: 1.2 });
 }
 
-textOnScreen("h1", "Secret Number Game!");
-textOnScreen("p", "Choose a number between 1 and 10.");
+/**
+ * Displays the initial welcoming UI text.
+ */
+function displayInitialMessage() {
+    displayTextOnScreen('h1', 'Secret Number Game');
+    displayTextOnScreen('p', 'Choose a number between 1 and 10');
+}
 
-// Validates the user's guess against the secret number and updates UI feedback
-function verifyGuess() {
-  let guess = parseInt(document.querySelector("input").value, 10);
-  let attemptWord = attempts > 1 ? "attempts" : "attempt";
-  let attemptsMessage = `Congratulations! You guessed the secret number in ${attempts} ${attemptWord}!`;
+// Render initial state on page load
+displayInitialMessage();
 
-  if (guess === secretNumber) {
-    textOnScreen("h1", "You got it!");
-    textOnScreen("p", attemptsMessage);
-  } else {
-    if (guess > secretNumber) {
-      textOnScreen("h1", "Wrong!");
-      textOnScreen("p", "The secret number is smaller!");
+/**
+ * Validates the user's guess against the secret number.
+ */
+function checkGuess() {
+    let guess = document.querySelector('input').value;
+    
+    if (guess == secretNumber) {
+        displayTextOnScreen('h1', 'Correct!');
+        let attemptWord = attempts > 1 ? 'attempts' : 'attempt';
+        let attemptMessage = `You guessed the secret number in ${attempts} ${attemptWord}!`;
+        
+        displayTextOnScreen('p', attemptMessage);
+        document.getElementById('restart').removeAttribute('disabled');
     } else {
-      textOnScreen("h1", "Wrong!");
-      textOnScreen("p", "The secret number is bigger!");
+        if (guess > secretNumber) {
+            displayTextOnScreen('p', 'The secret number is lower');
+        } else {
+            displayTextOnScreen('p', 'The secret number is higher');
+        }
+        attempts++;
+        clearInputField();
     }
-    attempts++;
-  }
 }
 
-// Generates a random integer between 1 and 10
+/**
+ * Generates a unique random integer between 1 and maxNumber.
+ * Recursively generates a new number if it was drawn previously.
+ */
 function generateRandomNumber() {
-  return parseInt(Math.random() * 10 + 1, 10);
+    let chosenNumber = parseInt(Math.random() * maxNumber + 1);
+    let totalElementsInList = drawnNumbersList.length;
+
+    // Reset history if all available numbers have been drawn
+    if (totalElementsInList == maxNumber) {
+        drawnNumbersList = [];
+    }
+
+    if (drawnNumbersList.includes(chosenNumber)) {
+        return generateRandomNumber();
+    } else {
+        drawnNumbersList.push(chosenNumber);
+        console.log(drawnNumbersList);
+        return chosenNumber;
+    }
+}
+
+/**
+ * Clears the user input field.
+ */
+function clearInputField() {
+    let guessInput = document.querySelector('input');
+    guessInput.value = '';
+}
+
+/**
+ * Resets the game to its starting state.
+ */
+function restartGame() {
+    secretNumber = generateRandomNumber();
+    clearInputField();
+    attempts = 1;
+    displayInitialMessage();
+    document.getElementById('restart').setAttribute('disabled', true);
 }
