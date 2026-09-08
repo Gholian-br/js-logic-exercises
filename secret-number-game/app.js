@@ -37,6 +37,9 @@ function checkGuess() {
         displayTextOnScreen('h1', 'Correct!');
         let attemptWord = attempts > 1 ? 'attempts' : 'attempt';
         let attemptMessage = `You guessed the secret number in ${attempts} ${attemptWord}!`;
+        if (guess == "") {
+    return;
+  }
         
         displayTextOnScreen('p', attemptMessage);
         document.getElementById('restart').removeAttribute('disabled');
